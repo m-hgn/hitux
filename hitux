@@ -139,7 +139,6 @@ greet()
     ${body}   / ${belly}/ \\ ${body}\\--´   ${bubble}🭒█████${user_padd}██🭝${reset}
     ${body}  // ${belly}\\_/ ${body}/
     ${beak_feet}   _${body}\\/ \\/${beak_feet}_${reset}
-
 EOF
 }
 
