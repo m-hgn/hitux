@@ -1,0 +1,293 @@
+#!/bin/sh
+
+main()
+{
+    check_deps
+    handle_options "$@"
+    run "$@"
+    exit
+}
+
+
+
+# - config -
+
+# see the colorscheme/formatting section
+# after the config section.
+
+# config that applies to all options the script can be run with
+global_config()
+{
+    # colors
+    beak_feet="$(echo "$fc7")"
+    belly="$(echo "$fc1")"
+    body="$(echo "$fc2")"
+    eye="$(echo "$fc14")"
+    text="$(echo "$reset")"
+}
+
+
+# config for greet option
+greet_config()
+{
+    # required padding
+    user_padd="$(echo "$USER" | sed 's/./█/g')"
+
+# colors
+bubble="$(echo "$fc8")"
+text="$(echo "$bc7")"
+}
+
+
+# config for slick option
+slick_config()
+{
+    # colors
+    border="$(echo "$fc8")"
+
+    labels="$(echo "$fc1")"
+
+    os_dot="$(echo "$fc2")"
+    wm_dot="$(echo "$fc3")"
+    te_dot="$(echo "$fc5")"
+    sh_dot="$(echo "$fc4")"
+
+    os_text="$(echo "$reset")"
+    wm_text="$(echo "$reset")"
+    te_text="$(echo "$reset")"
+    sh_text="$(echo "$reset")"
+}
+
+
+# config for bubble option
+bubble_config()
+{
+    #TODO: required bubble padding for each system info entry
+    # colors
+    bubble="$(echo "$fc8")"
+
+    labels="$(echo "$fc1")"
+
+    os_dot="$(echo "$fc2")"
+    wm_dot="$(echo "$fc3")"
+    te_dot="$(echo "$fc5")"
+    sh_dot="$(echo "$fc4")"
+
+    os_text="$(echo "$reset")"
+    wm_text="$(echo "$reset")"
+    te_text="$(echo "$reset")"
+    sh_text="$(echo "$reset")"
+}
+
+
+# - colorscheme/formatting -
+
+# bold text
+b="$(tput bold)"
+
+# 16 foreground colors
+fc0="$(tput setaf 0)"
+fc1="$(tput setaf 1)"
+fc2="$(tput setaf 2)"
+fc3="$(tput setaf 3)"
+fc4="$(tput setaf 4)"
+fc5="$(tput setaf 5)"
+fc6="$(tput setaf 6)"
+fc7="$(tput setaf 7)"
+fc8="$(tput setaf 8)"
+fc9="$(tput setaf 9)"
+fc10="$(tput setaf 10)"
+fc11="$(tput setaf 11)"
+fc12="$(tput setaf 12)"
+fc13="$(tput setaf 13)"
+fc14="$(tput setaf 14)"
+fc15="$(tput setaf 15)"
+
+# 16 background colors
+bc0="$(tput setab 0)"
+bc1="$(tput setab 1)"
+bc2="$(tput setab 2)"
+bc3="$(tput setab 3)"
+bc4="$(tput setab 4)"
+bc5="$(tput setab 5)"
+bc6="$(tput setab 6)"
+bc7="$(tput setab 7)"
+bc8="$(tput setab 8)"
+bc9="$(tput setab 9)"
+bc10="$(tput setab 10)"
+bc11="$(tput setab 11)"
+bc12="$(tput setab 12)"
+bc13="$(tput setab 13)"
+bc14="$(tput setab 14)"
+bc15="$(tput setab 15)"
+
+# swap foreground/background
+invert="$(tput rev)"
+
+# reset formatting
+reset="$(tput sgr0)"
+
+
+
+# - run -
+
+run()
+{
+    global_config
+
+    case "$1" in
+        -b | --bubble)
+            bubble
+            ;;
+        -g | --greet)
+            greet
+            ;;
+        -s | --slick)
+            slick
+            ;;
+        *)
+            usage
+            ;;
+    esac
+}
+
+
+# - greet -
+greet()
+{
+    greet_config
+    cat <<EOF
+     ${body}___${reset}
+    ${body}(${eye}·${beak_feet}<${eye}·${body})    ${bubble}🭢🭧🭒██████${user_padd}██🭌${reset}
+    ${body}/ ${belly}_ ${body}\\____  ${bubble}🭢██${invert}${text}hi, $USER!${reset}${bubble}██${reset}
+   ${body}/ ${belly}/ \\ ${body}\\--´   ${bubble}🭒█████${user_padd}██🭝${reset}
+  ${body}// ${belly}\\_/ ${body}/
+   ${beak_feet}_${body}\\/ \\/${beak_feet}_${reset}
+
+EOF
+}
+
+
+
+# - slick -
+slick()
+{
+    slick_config
+    #TODO: implement slick
+    echo ""
+}
+
+
+
+# - bubble -
+bubble()
+{
+    bubble_config
+    #TODO: implement bubble
+    echo ""
+}
+
+
+
+# - check_deps -
+
+check_deps()
+{
+    if ! command -v tput 1>/dev/null ; then
+        echo "$0: \`tput\` not found." 1>&2
+        exit 1
+    fi
+    if ! command -v cat 1>/dev/null ; then
+        echo "$0: \`cat\` not found." 1>&2
+        exit 1
+    fi
+}
+
+
+
+# - usage -
+
+usage()
+{
+    cat << EOF
+usage: $0 [OPTION]
+
+Have a sympathetic penguin greet you by name or have it fetch system information for you.
+
+options:
+   -b, --bubble    Fetch system information in speech bubble design
+   -g, --greet     Have tux greet user by name
+   -s, --slick     Fetch system information in slick design
+
+   -h, --help      Display this message and exit
+EOF
+}
+
+
+
+# - handle_options -
+
+handle_options()
+{
+    if [ "$#" -ne 1 ] ; then
+        echo "$0: invalid argument count. supply exactly one argument.\n" 1>&2
+        usage
+        exit 1
+    fi
+}
+
+
+
+
+
+
+
+##################################################
+#
+# hitux --greet
+#
+#user_padd="$(echo "$USER" | sed 's/./█/g')"
+#bubble="$(echo "$fc8")"
+#text="$(echo "$bc7")"
+#beak_feet="$(echo "$fc7")"
+#eye="$(echo "$fc14")"
+#belly="$(echo "$fc1")"
+#body="$(echo "$fc2")"
+#cat <<EOF
+#     ${body}___${reset}
+#    ${body}(${eye}·${beak_feet}<${eye}·${body})    ${bubble}🭢🭧🭒██████${user_padd}██🭌${reset}
+#    ${body}/ ${belly}_ ${body}\\____  ${bubble}🭢██${invert}${text}hi, $USER!${reset}${bubble}██${reset}
+#   ${body}/ ${belly}/ \\ ${body}\\--´   ${bubble}🭒█████${user_padd}██🭝${reset}
+#  ${body}// ${belly}\\_/ ${body}/
+#   ${beak_feet}_${body}\\/ \\/${beak_feet}_${reset}
+#
+#EOF
+##################################################
+#
+# hitux --slick
+#
+#cat <<EOF
+#     ___        ╭──────────────────────╮
+#    (·<·)       │     os ⏺  ~  arch    │
+#    / _ \\____   │     wm ⏺  ~  bspwm   │
+#   / / \\ \\--´   │   term ⏺  ~  kitty   │
+#  // \\_/ /      │  shell ⏺  ~  zsh     │
+#   _\\/ \\/_      ╰──────────────────────╯
+#
+#EOF
+##################################################
+#
+# hitux --bubble
+#
+#cat <<EOF
+#     ___
+#    (·<·)    🭢🭧🭒███████████████████████🭌
+#    / _ \\____  🭢██████${revcol}os ⏺  ~  arch${rcol}█████
+#   / / \\ \\--´   ██████${revcol}wm ⏺  ~  bspwm${rcol}████
+#  // \\_/ /      ████${revcol}term ⏺  ~  kitty${rcol}████
+#   _\\/ \\/_      ███${revcol}shell ⏺  ~  zsh${rcol}██████
+#                🭒██████████████████████🭝
+#EOF
+##################################################
+
+main "$@"
