@@ -1,23 +1,72 @@
 #!/bin/sh
 
+# - main -
+
+# entry point of the script,
+# called at the end.
+#
+# everything in this script is
+# wrapped in functions. the
+# call to main is the only thing
+# happening outside of a function
+
 main()
 {
     check_deps
     handle_options "$@"
-    run "$@"
+    run_option "$@"
     exit
 }
 
 
 
-# - config -
+# - run_option -
+
+# runs option according to usersn choice
+# if option is invalid, prints help message
+# and doesn't do anything
+
+run_option()
+{
+    global_config
+
+    case "$1" in
+        -b | --bubble)
+            bubble "$@"
+            ;;
+        -g | --greet)
+            greet "$@"
+            ;;
+        -c | --clean)
+            clean "$@"
+            ;;
+        *)
+            usage
+            ;;
+    esac
+}
+
+
+
+
+# - configuration -
 
 # see the colorscheme/formatting section
-# after the config section.
+# after the config as well as `man tput`
+# to understand colors and formatting.
+#
+# all functions named after options, ending in
+# `_config()` are only to define colors as well
+# as padding.
+#
+# to modify the actual information displayed,
+# edit within the options corresponding function
+# that does not end in `_config`
 
-# config that applies to all options the script can be run with
 global_config()
 {
+    # global config applies to all options
+
     # colors
     beak_feet="$(echo "$fc7")"
     belly="$(echo "$fc1")"
@@ -30,53 +79,102 @@ global_config()
 # config for greet option
 greet_config()
 {
-    # required padding
-    user_padd="$(echo "$USER" | sed 's/./█/g')"
+    # colors
+    bubble="$(echo "$fc8")"
 
-# colors
-bubble="$(echo "$fc8")"
-text="$(echo "$bc7")"
+    # since the bubble inverts colors,
+    # the text should be a background color
+    text="$(echo "$bc7")"
+
+    # required padding
+    # it is suggested to keep this
+    user_padd="$(echo "$USER" | sed 's/./█/g')"
 }
 
 
-# config for slick option
-slick_config()
+# config for clean option
+clean_config()
 {
     # colors
     border="$(echo "$fc8")"
+    label="$(echo "$fc7")"
+    text="$(echo "$fc1")"
 
-    labels="$(echo "$fc1")"
-
-    os_dot="$(echo "$fc2")"
-    wm_dot="$(echo "$fc3")"
-    te_dot="$(echo "$fc5")"
-    sh_dot="$(echo "$fc4")"
-
-    os_text="$(echo "$reset")"
-    wm_text="$(echo "$reset")"
-    te_text="$(echo "$reset")"
-    sh_text="$(echo "$reset")"
+    # circle colors to show palette
+    ht0="$(echo "$fc2")"
+    ht1="$(echo "$fc3")"
+    ht2="$(echo "$fc5")"
+    ht3="$(echo "$fc4")"
 }
 
 
 # config for bubble option
 bubble_config()
 {
-    #TODO: required bubble padding for each system info entry
     # colors
     bubble="$(echo "$fc8")"
 
-    labels="$(echo "$fc1")"
+    # since the bubble inverts colors,
+    # the text should be a background color
+    text="$(echo "$bc7")"
 
-    os_dot="$(echo "$fc2")"
-    wm_dot="$(echo "$fc3")"
-    te_dot="$(echo "$fc5")"
-    sh_dot="$(echo "$fc4")"
+    # circle colors to show palette
+    # since the bubble inverts colors,
+    # the dots should be a background color
+    ht0="$(echo "$bc2")"
+    ht1="$(echo "$bc3")"
+    ht2="$(echo "$bc5")"
+    ht3="$(echo "$bc4")"
+}
 
-    os_text="$(echo "$reset")"
-    wm_text="$(echo "$reset")"
-    te_text="$(echo "$reset")"
-    sh_text="$(echo "$reset")"
+
+# - greet -
+greet()
+{
+    greet_config
+    cat <<EOF
+    ${body}     ___${reset}
+    ${body}    (${eye}·${beak_feet}<${eye}·${body})    ${bubble}🭢🭧🭒██████${user_padd}██🭌${reset}
+    ${body}    / ${belly}_ ${body}\\____  ${bubble}🭢██${invert}${text}hi, $USER!${reset}${bubble}██${reset}
+    ${body}   / ${belly}/ \\ ${body}\\--´   ${bubble}🭒█████${user_padd}██🭝${reset}
+    ${body}  // ${belly}\\_/ ${body}/
+    ${beak_feet}   _${body}\\/ \\/${beak_feet}_${reset}
+
+EOF
+}
+
+
+
+# - clean -
+clean()
+{
+    clean_config
+    cat <<EOF
+    ${body}     ___${reset}        ${border}╭──────────────────────╮
+    ${body}    (${eye}·${beak_feet}<${eye}·${body})       ${border}│     ${label}os  ${ht0}⏺  ${text}pop!      ${border}│
+    ${body}    / ${belly}_ ${body}\\____   ${border}│     ${label}wm  ${ht1}⏺  ${text}bspwm     ${border}│
+    ${body}   / ${belly}/ \\ ${body}\\--´   ${border}│   ${label}term  ${ht2}⏺  ${text}kitty     ${border}│
+    ${body}  // ${belly}\\_/ ${body}/      ${border}│  ${label}shell  ${ht3}⏺  ${text}zsh       ${border}│
+    ${beak_feet}   _${body}\\/ \\/${beak_feet}_      ${border}╰──────────────────────╯
+
+EOF
+}
+
+
+
+# - bubble -
+bubble()
+{
+    bubble_config
+    cat <<EOF
+    ${body}     ___${reset}
+    ${body}    (${eye}·${beak_feet}<${eye}·${body})    ${bubble}🭢🭧🭒████████████████████████🭌${reset}
+    ${body}    / ${belly}_${body} \\____  ${bubble}🭢██${text}${invert}    ${b}os${reset}${bubble}${invert}  ${ht0}⏺${text}${bubble}  pop!      ${reset}${bubble}██${reset}
+    ${body}   / ${belly}/ \\ ${body}\\--´   ${bubble}██${text}${invert}    ${b}wm${reset}${bubble}${invert}  ${ht1}⏺${text}${bubble}  bspwm     ${reset}${bubble}██${reset}
+    ${body}  // ${belly}\\_/ ${body}/      ${bubble}██${text}${invert}  ${b}term${reset}${bubble}${invert}  ${ht2}⏺${text}${bubble}  kitty     ${reset}${bubble}██${reset}
+    ${beak_feet}   _${body}\\/ \\/${beak_feet}_      ${bubble}██${text}${invert} ${b}shell${reset}${bubble}${invert}  ${ht3}⏺${text}${bubble}  zsh       ${reset}${bubble}██${reset}
+                    ${bubble}🭒███████████████████████🭝${reset}
+EOF
 }
 
 
@@ -129,67 +227,12 @@ reset="$(tput sgr0)"
 
 
 
-# - run -
-
-run()
-{
-    global_config
-
-    case "$1" in
-        -b | --bubble)
-            bubble
-            ;;
-        -g | --greet)
-            greet
-            ;;
-        -s | --slick)
-            slick
-            ;;
-        *)
-            usage
-            ;;
-    esac
-}
-
-
-# - greet -
-greet()
-{
-    greet_config
-    cat <<EOF
-     ${body}___${reset}
-    ${body}(${eye}·${beak_feet}<${eye}·${body})    ${bubble}🭢🭧🭒██████${user_padd}██🭌${reset}
-    ${body}/ ${belly}_ ${body}\\____  ${bubble}🭢██${invert}${text}hi, $USER!${reset}${bubble}██${reset}
-   ${body}/ ${belly}/ \\ ${body}\\--´   ${bubble}🭒█████${user_padd}██🭝${reset}
-  ${body}// ${belly}\\_/ ${body}/
-   ${beak_feet}_${body}\\/ \\/${beak_feet}_${reset}
-
-EOF
-}
-
-
-
-# - slick -
-slick()
-{
-    slick_config
-    #TODO: implement slick
-    echo ""
-}
-
-
-
-# - bubble -
-bubble()
-{
-    bubble_config
-    #TODO: implement bubble
-    echo ""
-}
-
-
-
 # - check_deps -
+
+# check for dependencies that the script
+# requires to function.
+#
+# though these shouldn't be an issue
 
 check_deps()
 {
@@ -207,17 +250,24 @@ check_deps()
 
 # - usage -
 
+# print help message of script
+# just for usage purposes, not for
+# understanding how the script works.
+
 usage()
 {
     cat << EOF
 usage: $0 [OPTION]
 
-Have a sympathetic penguin greet you by name or have it fetch system information for you.
+Have a sympathetic penguin greet you by name or have it display given
+system information for you.
+
+Read the source code for more information.
 
 options:
    -b, --bubble    Fetch system information in speech bubble design
    -g, --greet     Have tux greet user by name
-   -s, --slick     Fetch system information in slick design
+   -c, --clean     Fetch system information in clean design
 
    -h, --help      Display this message and exit
 EOF
@@ -226,6 +276,9 @@ EOF
 
 
 # - handle_options -
+
+# handles number of options, script
+# always takes exactly one option.
 
 handle_options()
 {
@@ -239,55 +292,5 @@ handle_options()
 
 
 
-
-
-
-##################################################
-#
-# hitux --greet
-#
-#user_padd="$(echo "$USER" | sed 's/./█/g')"
-#bubble="$(echo "$fc8")"
-#text="$(echo "$bc7")"
-#beak_feet="$(echo "$fc7")"
-#eye="$(echo "$fc14")"
-#belly="$(echo "$fc1")"
-#body="$(echo "$fc2")"
-#cat <<EOF
-#     ${body}___${reset}
-#    ${body}(${eye}·${beak_feet}<${eye}·${body})    ${bubble}🭢🭧🭒██████${user_padd}██🭌${reset}
-#    ${body}/ ${belly}_ ${body}\\____  ${bubble}🭢██${invert}${text}hi, $USER!${reset}${bubble}██${reset}
-#   ${body}/ ${belly}/ \\ ${body}\\--´   ${bubble}🭒█████${user_padd}██🭝${reset}
-#  ${body}// ${belly}\\_/ ${body}/
-#   ${beak_feet}_${body}\\/ \\/${beak_feet}_${reset}
-#
-#EOF
-##################################################
-#
-# hitux --slick
-#
-#cat <<EOF
-#     ___        ╭──────────────────────╮
-#    (·<·)       │     os ⏺  ~  arch    │
-#    / _ \\____   │     wm ⏺  ~  bspwm   │
-#   / / \\ \\--´   │   term ⏺  ~  kitty   │
-#  // \\_/ /      │  shell ⏺  ~  zsh     │
-#   _\\/ \\/_      ╰──────────────────────╯
-#
-#EOF
-##################################################
-#
-# hitux --bubble
-#
-#cat <<EOF
-#     ___
-#    (·<·)    🭢🭧🭒███████████████████████🭌
-#    / _ \\____  🭢██████${revcol}os ⏺  ~  arch${rcol}█████
-#   / / \\ \\--´   ██████${revcol}wm ⏺  ~  bspwm${rcol}████
-#  // \\_/ /      ████${revcol}term ⏺  ~  kitty${rcol}████
-#   _\\/ \\/_      ███${revcol}shell ⏺  ~  zsh${rcol}██████
-#                🭒██████████████████████🭝
-#EOF
-##################################################
-
+# call to main
 main "$@"
